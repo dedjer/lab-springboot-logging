@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+
+    <property name="LOGS" value="./logs" />
+
+    <!-- STDOUT -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- JSON Layout for AWS CloudWatch -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                <timestampFormatTimezoneId>UTC</timestampFormatTimezoneId>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <prettyPrint>false</prettyPrint>
+                </jsonFormatter>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- DATABASE Layout for MySql -->
+    <springProperty name="spring.datasource.driver-class-name" source="spring.datasource.driver-class-name"/>
+    <springProperty name="spring.datasource.url" source="spring.datasource.url"/>
+    <springProperty name="spring.datasource.username" source="spring.datasource.username"/>
+    <springProperty name="spring.datasource.password" source="spring.datasource.password"/>
+
+    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">
+            <driverClass>${spring.datasource.driver-class-name}</driverClass>
+            <url>${spring.datasource.url}</url>
+            <user>${spring.datasource.username}</user>
+            <password>${spring.datasource.password}</password>
+        </connectionSource>
+    </appender>
+
+    <!-- FILE Layout -->
+
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <!--        <appender-ref ref="STDOUT" />-->
+        <!--        <appender-ref ref="CONSOLE" />-->
+        <appender-ref ref="DB" />
+
+    </root>
+
+    <logger name="com.example" level="trace" additivity="false">
+        <!--        <appender-ref ref="STDOUT" />-->
+        <!--        <appender-ref ref="CONSOLE" />-->
+        <appender-ref ref="DB" />
+
+    </logger>
+
+</configuration>
